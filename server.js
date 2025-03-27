@@ -1,8 +1,16 @@
 const express = require('express');
 const app = express();
+require("dotenv").config();
 const itemsRoutes = require('./routes/itemsRoutes');
+const dotenv = require("dotenv");
+const authRoutes = require("./routes/authRoutes");
 const plantRoutes = require("./routes/plantRoutes");
 const exchangeRoutes = require("./routes/exchangeRoutes");
+
+dotenv.config();
+
+
+
 
 const hbs= require('hbs');
 
@@ -14,6 +22,7 @@ app.use(express.json()); // для обработки JSON-тел запросо
 app.use('/api', itemsRoutes);
 app.use("/api/plants", plantRoutes);
 app.use("/api/exchanges", exchangeRoutes);
+app.use("/api/auth", authRoutes);
 
 
 
