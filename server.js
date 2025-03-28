@@ -61,6 +61,9 @@ app.get("/dashboard",  authenticateUser,(req, res) => {
     const user = req.user || { name: "Гость", email: "guest@example.com" };
     res.render("dashboard", { user });
 });
+app.get("/profile", authenticateUser, (req, res) => {
+    res.render("profile", { user: req.user });
+});
 
 
 const port = 3000;
