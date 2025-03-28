@@ -1,14 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Платформа обмена</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
 <h2>Редактирование профиля</h2>
-
+<div id="userData" data-user='{{{json user}}}'></div>
+<pre>{{{json user}}}</pre>
+<hr>
 <form id="profileForm">
     <label for="region">Регион:</label>
     <select id="region" name="region">
         <option value="">Не указано</option>
+        {{#each regions}}
+            <option value="{{this}}" {{#ifCond this ../user.region}}selected{{/ifCond}}>{{this}}</option>
+        {{/each}}
     </select>
 
     <label for="city">Город:</label>
-    <select id="city" name="city" disabled>
+    <select id="city" name="city" {{#if user.region}}enabled{{else}}disabled{{/if}} >
         <option value="">Не указано</option>
+        {{#if user.region}}
+            {{#each (lookup cities user.region)}}
+                <option value="{{this}}" {{#ifCond this user.town}}selected{{/ifCond}}>{{this}}</option>
+            {{/each}}
+        {{/if}}
     </select>
 
     <button type="submit">Сохранить</button>
@@ -17,4 +36,7 @@
 <p><a href="/dashboard">Назад в кабинет</a></p>
 
 <script src="/js/profile.js"></script>
-<script src="/js/regions.js"></script> <!-- Файл со списком регионов и городов -->
+<script src="/js/regions.js"></script>
+
+</body>
+</html>

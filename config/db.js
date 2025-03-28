@@ -8,6 +8,10 @@ const client = new Client({
     port: 5432,
 });
 
-client.connect();
+// client.connect();
+
+client.connect()
+    .then(() => console.log("Подключение к базе данных установлено"))
+    .catch(err => console.error("Ошибка подключения к базе данных:", err));
 
 module.exports = client;

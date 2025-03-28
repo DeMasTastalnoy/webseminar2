@@ -22,10 +22,21 @@ const User = {
     },
 
     updateRegionAndTown: async (id, region, town) => {
-        await pool.query(
-            "UPDATE users SET region = $1, town = $2 WHERE id = $3",
+        const { rows } = await pool.query(
+            "UPDATE users SET region = $1, town = $2 WHERE id = $3 RETURNING id, name, email, region, town",
             [region, town, id]
         );
+        return rows[0];  // Возвращаем обновленные данные пользователя
+    },
+
+    getUserProfile: async (id) => {
+        console.log("Выполняем запрос к базе данных для id:", id);  // Проверяем ID
+        const { rows } = await pool.query(
+            "SELECT id, name, email, region, town FROM users WHERE id = $1",
+            [id]
+        );
+        console.log("heres need something",rows[0]);
+        return rows[0];
     },
 
 };
