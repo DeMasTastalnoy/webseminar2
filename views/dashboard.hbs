@@ -7,4 +7,176 @@
 
 <button id="logout">Выйти</button>
 
+<h2>Мои растения</h2>
+<div id="plants-list">
+    {{#each plants}}
+        <div class="plant-card">
+            <h3>{{this.name}}</h3>
+            <p>Тип: {{this.type}}</p>
+            <p>Описание: {{this.description}}</p>
+            <p>Регион: {{this.region}}</p>
+            <p>Добавлено: {{this.created_at}}</p>
+            <button onclick="deletePlant({{this.id}})">Удалить</button>
+        </div>
+    {{else}}
+        <p>У вас нет добавленных растений.</p>
+    {{/each}}
+</div>
+
+<!-- Форма для добавления нового растения -->
+<h3>Добавить новое растение</h3>
+<form id="addPlantForm">
+    <label for="name">Название:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="type">Тип:</label>
+    <select id="type" name="type" required>
+        <option value="" disabled selected>Выберите тип</option>
+        <option value="Цветок">Цветок</option>
+        <option value="Овощ">Овощ</option>
+        <option value="Фруктовое дерево">Фруктовое дерево</option>
+        <option value="Декоративное растение">Декоративное растение</option>
+        <option value="Комнатное растение">Комнатное растение</option>
+    </select>
+
+    <label for="description">Описание:</label>
+    <textarea id="description" name="description"></textarea>
+
+    <label for="region">Регион:</label>
+    <select id="region" name="region" required>
+        <option value="" disabled selected>Выберите регион</option>
+        <option value="Москва">Москва</option>
+        <option value="Московская область">Московская область</option>
+        <option value="Санкт-Петербург">Санкт-Петербург</option>
+        <option value="Ленинградская область">Ленинградская область</option>
+        <option value="Краснодарский край">Краснодарский край</option>
+        <option value="Новосибирская область">Новосибирская область</option>
+        <option value="Республика Татарстан">Республика Татарстан</option>
+    </select>
+
+    <button type="submit">Добавить растение</button>
+</form>
+
+<!-- Форма для редактирования растения (скрыта по умолчанию) -->
+<div id="editPlantModal" style="display: none;">
+    <h3>Редактировать растение</h3>
+    <form id="editPlantForm">
+        <input type="hidden" id="editId">
+
+        <label for="editName">Название:</label>
+        <input type="text" id="editName" required>
+
+        <label for="editType">Тип:</label>
+        <select id="editType" required>
+            <option value="Цветок">Цветок</option>
+            <option value="Овощ">Овощ</option>
+            <option value="Фруктовое дерево">Фруктовое дерево</option>
+            <option value="Декоративное растение">Декоративное растение</option>
+            <option value="Комнатное растение">Комнатное растение</option>
+        </select>
+
+        <label for="editDescription">Описание:</label>
+        <textarea id="editDescription"></textarea>
+
+        <label for="editRegion">Регион:</label>
+        <select id="editRegion" required>
+            <option value="Москва">Москва</option>
+            <option value="Московская область">Московская область</option>
+            <option value="Санкт-Петербург">Санкт-Петербург</option>
+            <option value="Ленинградская область">Ленинградская область</option>
+            <option value="Краснодарский край">Краснодарский край</option>
+            <option value="Новосибирская область">Новосибирская область</option>
+            <option value="Республика Татарстан">Республика Татарстан</option>
+        </select>
+
+        <button type="submit">Сохранить изменения</button>
+        <button type="button" onclick="closeEditModal()">Отмена</button>
+    </form>
+</div>
+
+<script>
+    async function fetchPlants() {
+        const response = await fetch("/api/plants");
+        const data = await response.json();
+        const plantsList = document.getElementById("plants-list");
+
+        if (data.length === 0) {
+            plantsList.innerHTML = "<p>У вас нет добавленных растений.</p>";
+            return;
+        }
+
+        const plantsHTML = data.map(plant => `
+            <div class="plant-card" id="plant-${plant.id}">
+                <h3>${plant.name}</h3>
+                <p>Тип: ${plant.type}</p>
+                <p>Описание: ${plant.description}</p>
+                <p>Регион: ${plant.region}</p>
+                <p>Добавлено: ${plant.created_at}</p>
+                <button onclick="editPlant(${plant.id})">Редактировать</button>
+                <button onclick="deletePlant(${plant.id})">Удалить</button>
+            </div>
+        `).join("");
+
+        plantsList.innerHTML = plantsHTML;
+    }
+
+    async function deletePlant(id) {
+        const response = await fetch(`/api/plants/${id}`, {
+            method: "DELETE"
+        });
+
+        if (response.ok) {
+            alert("Растение удалено!");
+            fetchPlants();
+        } else {
+            alert("Ошибка при удалении растения.");
+        }
+    }
+
+    function editPlant(id) {
+        const plantCard = document.getElementById(`plant-${id}`);
+        document.getElementById("editId").value = id;
+        document.getElementById("editName").value = plantCard.querySelector("h3").textContent;
+        document.getElementById("editType").value = plantCard.querySelector("p:nth-child(2)").textContent.replace("Тип: ", "");
+        document.getElementById("editDescription").value = plantCard.querySelector("p:nth-child(3)").textContent.replace("Описание: ", "");
+        document.getElementById("editRegion").value = plantCard.querySelector("p:nth-child(4)").textContent.replace("Регион: ", "");
+
+        document.getElementById("editPlantModal").style.display = "block";
+    }
+
+    function closeEditModal() {
+        document.getElementById("editPlantModal").style.display = "none";
+    }
+
+    document.getElementById("editPlantForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const id = document.getElementById("editId").value;
+        const name = document.getElementById("editName").value;
+        const type = document.getElementById("editType").value;
+        const description = document.getElementById("editDescription").value;
+        const region = document.getElementById("editRegion").value;
+
+        const response = await fetch(`/api/plants/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name, type, description, region })
+        });
+
+        if (response.ok) {
+            alert("Растение обновлено!");
+            closeEditModal();
+            fetchPlants();
+        } else {
+            alert("Ошибка при обновлении.");
+        }
+    });
+
+    fetchPlants();
+</script>
+
+
+
 <script src="/js/auth.js"></script>

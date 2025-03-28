@@ -67,7 +67,7 @@ app.use((req, res, next) => {
 
 app.use('/api', itemsRoutes);
 app.use("/api/plants", plantRoutes);
-app.use("/api/exchanges", exchangeRoutes);
+app.use("/api/exchange", exchangeRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api", userRoutes); // Путь, на который будет обращаться клиент
 
