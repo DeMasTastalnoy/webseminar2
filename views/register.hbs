@@ -3,8 +3,19 @@
     <input type="text" id="name" placeholder="Имя" required>
     <input type="email" id="email" placeholder="Email" required>
     <input type="password" id="password" placeholder="Пароль" required>
+    <label for="region">Регион:</label>
+    <select id="region" name="region">
+        <option value="">Не указано</option>
+    </select>
+
+    <label for="city">Город:</label>
+    <select id="city" name="city" disabled>
+        <option value="">Не указано</option>
+    </select>
     <button type="submit">Зарегистрироваться</button>
 </form>
+
 <p>Уже есть аккаунт? <a href="/login">Войти</a></p>
 
+<script src="/js/regions.js"></script>
 <script src="/js/auth.js"></script>

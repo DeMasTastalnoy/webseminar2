@@ -12,7 +12,7 @@ exports.register = async (req, res) => {
     try {
         console.log("Запрос на регистрацию:", req.body);
 
-        const { name, email, password } = req.body;
+        const { name, email, password, region = "Не указано", town = "Не указано" } = req.body;
 
         if (!name || !email || !password) {
             return res.status(400).json({ error: "Все поля обязательны" });
@@ -27,7 +27,7 @@ exports.register = async (req, res) => {
 
         console.log("Создание нового пользователя...");
         // Создаем пользователя
-        const newUser = await User.create(name, email, password);
+        const newUser = await User.create(name, email, password, region, town);
         console.log("Пользователь создан:", newUser);
 
         const token = generateToken(newUser);
