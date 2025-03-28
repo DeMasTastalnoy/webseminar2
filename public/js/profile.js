@@ -1,7 +1,8 @@
 const loadRegions = async (regionSelect, citySelect) => {
     try {
-        // Пример статичного списка регионов (если нужно загрузить с сервера, заменим на fetch)
+        // // Пример статичного списка регионов (если нужно загрузить с сервера, заменим на fetch)
         const regions = ["Московская область", "Ленинградская область", "Тверская область"];
+        regionSelect.innerHTML = "<option value=''>Не указано</option>";
 
         // Заполнение селектора регионов
         regions.forEach(region => {
@@ -25,15 +26,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     const regionSelect = document.getElementById("region");
     const citySelect = document.getElementById("city");
 
-    // Подгружаем список регионов и городов
+    // Подгружаем список регионов
     await loadRegions(regionSelect, citySelect);
 
-    // Заполняем текущие данные пользователя
-    const response = await fetch("/api/user");
-    const user = await response.json();
-    regionSelect.value = user.region || "";
-    citySelect.value = user.town || "";
-    citySelect.disabled = !regionSelect.value;
+    try {
+        console.log("Отправка запроса на получение данных пользователя...");
+
+        const res = await fetch("/api/user", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1]}`,
+            },
+        });
+
+        console.log("Ответ от сервера:", res);
+
+        // Получаем ответ как JSON, если сервер вернул корректный JSON
+        if (res.ok) {
+            const user = await res.json();
+            console.log("Данные пользователя:", user);
+
+            regionSelect.value = user.region || "";
+            citySelect.value = user.town || "";
+            citySelect.disabled = !regionSelect.value;
+        } else {
+            const errorText = await res.text();
+            console.error("Ошибка при получении данных пользователя:", errorText);
+        }
+    } catch (error) {
+        console.error("Ошибка при загрузке профиля:", error);
+    }
+
 
     // Обработчик отправки формы
     profileForm.addEventListener("submit", async (e) => {
@@ -42,7 +65,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const region = regionSelect.value || "Не указано";
         const town = citySelect.value || "Не указано";
 
-        const res = await fetch("/profile", {
+        const res = await fetch("/api/profile", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ region, town }),

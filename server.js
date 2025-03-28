@@ -11,12 +11,10 @@ const cookieParser = require("cookie-parser");
 const exphbs = require("express-handlebars");
 const jwt = require("jsonwebtoken");
 const authenticateUser = require("./middleware/authMiddleware");
+const userRoutes = require("./routes/userRoutes"); // Путь к маршрутам пользователя
 
 
 dotenv.config();
-
-
-
 
 const hbs= require('hbs');
 
@@ -48,6 +46,7 @@ app.use('/api', itemsRoutes);
 app.use("/api/plants", plantRoutes);
 app.use("/api/exchanges", exchangeRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api", userRoutes); // Путь, на который будет обращаться клиент
 
 
 app.get("/register", (req, res) => res.render("register"));

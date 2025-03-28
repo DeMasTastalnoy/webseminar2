@@ -3,6 +3,7 @@ const router = express.Router();
 const authenticateUser = require("../middleware/authMiddleware");
 const userController = require("../controllers/userController");
 
+router.get("/user", authenticateUser, userController.getProfile);
 // Страница редактирования профиля
 router.get("/profile", authenticateUser, userController.getProfile);
 
